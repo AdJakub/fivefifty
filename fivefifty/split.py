@@ -11,8 +11,14 @@ def train_test_split(emails, test_fraction, seed):
     test = emails_list[cut:]
     return train, test
 
-if __name__ == "__main__":
+def load_dataset(test_fraction, seed):
     spam = load_folder("./data/spam", "spam")
-    train, test = train_test_split(spam, 0.2, 42)
-    print(f"train: {len(train)}, test:{len(test)}")
-    print(train[0][:80])
+    ham = load_folder("./data/easy_ham", "ham")
+    spam_train, spam_test = train_test_split(spam, test_fraction, seed)
+    ham_train, ham_test = train_test_split(ham, test_fraction, seed)
+    train = spam_train + ham_train
+    test = spam_test + ham_test
+    return train, test
+if __name__ == "__main__":
+    train, test = load_dataset(0.2, 42)
+    print(f"train: {len(train)}, test: {len(test)}")
