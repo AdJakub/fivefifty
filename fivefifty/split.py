@@ -19,6 +19,7 @@ def load_dataset(test_fraction, seed):
     train = spam_train + ham_train
     test = spam_test + ham_test
     return train, test
+
 if __name__ == "__main__":
     train, test = load_dataset(0.2, 42)
     print(f"train: {len(train)}, test: {len(test)}")
