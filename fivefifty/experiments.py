@@ -1,6 +1,7 @@
 import math
 
-
+from fivefifty.classify import load_dataset, count_words
+from fivefifty.train import make_fractions
 def lean(spam_count, ham_count, spam_mails, ham_mails):
     spam_fraction = (spam_count + 1) / (spam_mails + 2)
     ham_fraction = (ham_count + 1)  / (ham_mails + 2)
@@ -55,3 +56,16 @@ if __name__ == "__main__":
     fast_spam = fast_score(spam_base, spam_fractions, email_words)
     fast_ham = fast_score(ham_base, ham_fractions, email_words)
     print(f"X: {fast_spam}\nY: {fast_ham}")
+    print("="*40)
+    train, test = load_dataset(0.2, 42)
+    counts, email_counts = count_words(train)
+    fractions = make_fractions(counts, email_counts)
+    print (f"Spam: {len(fractions['spam'])}\nHam: {len(fractions['ham'])}.")
+    for word in ("click", "free", "patch"):
+        print(
+            f"{word}, spam: {fractions['spam'][word]:.1%}, ham: {fractions['ham'][word]:.1%}")
+    print(f"Spam: {len(counts['spam'])}, Ham: {len(counts['ham'])}")
+    print("="*40)
+    spam_only = counts["spam"].keys() - counts["ham"].keys()
+    spam_only_list = list(spam_only)
+    print(spam_only_list[:30])

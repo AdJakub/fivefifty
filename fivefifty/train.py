@@ -13,6 +13,20 @@ def count_words(emails):
             counts[label][word] = counts[label].get(word, 0) + 1
     return counts, email_counts
 
+
+def make_fractions(counts, email_counts):
+    every_word = counts["spam"].keys() | counts["ham"].keys()
+    fractions = {"spam": {}, "ham": {}}
+    for label in ["spam", "ham"]:
+        for word in every_word:
+            label_counts = counts[label]
+            word_count = label_counts.get(word, 0)
+            fraction = (word_count + 1) / (email_counts[label] + 2)
+            fractions[label][word] = fraction
+
+    return fractions
+
+
 if __name__ == "__main__":
     train, test = load_dataset(0.2, 42)
     counts, email_counts = count_words(train)
