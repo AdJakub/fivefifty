@@ -1,10 +1,11 @@
-from fivefifty.classify import classify, load_dataset
-from fivefifty.train import count_words
+from fivefifty.classify import classify, load_dataset, bernoulli_classify, make_bases
+from fivefifty.train import count_words, make_fractions
 
-def evaluate(test_list, counts, email_counts):
+def evaluate(test_list, classifier, model_a, model_b):
     results = {"caught": 0, "missed": 0, "false positive": 0, "correct ham": 0}
+    classify = classifier
     for text, label in test_list:
-        prediction, _ = classify(text, counts, email_counts)
+        prediction, _ = classify(text, model_a, model_b)
         if prediction == "spam" and label == "spam":
             results["caught"] += 1
         elif prediction == "ham" and label == "spam":
@@ -34,6 +35,13 @@ def metrics(results):
 if __name__ == "__main__":
     train, test = load_dataset(0.2, 42)
     counts, email_counts = count_words(train)
-    results = evaluate(test, counts, email_counts)
+    results = evaluate(test, classify, counts, email_counts)
     accuracy, precision, recall = metrics(results)
     print(f"{results}, {accuracy:.1%}, {precision:.1%}, {recall:.1%}")
+    print("-"*40)
+    fractions = make_fractions(counts, email_counts)
+    bases = make_bases(fractions, email_counts)
+    res_ber = evaluate(test, bernoulli_classify, fractions, bases)
+    accuracy2, precision2, recall2 = metrics(res_ber)
+    print(f"{res_ber}, {accuracy2:.1%}, {precision2:.1%}, {recall2:.1%}")
+
