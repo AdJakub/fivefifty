@@ -4,6 +4,19 @@ from fivefifty.tokenizer import tokenize
 from fivefifty.split import load_dataset
 from fivefifty.train import count_words
 
+def base_score(prior, fractions):
+    score = math.log(prior)
+    for (word, fraction) in fractions.items():
+        score += math.log(1 - fraction)
+    return score
+
+def fast_score(base, fractions, words):
+    score = base
+    for word in words:
+        if word in fractions:
+            fraction = fractions[word]
+            score += math.log(fraction) - math.log(1 - fraction)
+    return score
 
 def classify(raw_text, counts, email_counts):
     subjected = subject_and_body(raw_text)
@@ -26,8 +39,26 @@ def classify(raw_text, counts, email_counts):
     else:
         return "ham", scores
 
+def make_bases(fractions, email_counts):
+    train_email_total = sum(email_counts.values())
+    bases = {}
+    for label in ["spam", "ham"]:
+        prior = (email_counts[label] / train_email_total)
+        base = base_score(prior, fractions[label])
+        bases[label] = base
+    return bases
 
-
+def bernoulli_classify(raw_text, fractions, bases):
+    subjected = subject_and_body(raw_text)
+    tokenized = tokenize(subjected)
+    setted = set(tokenized)
+    scores = {}
+    for label in ["spam", "ham"]:
+        scores[label] = fast_score(bases[label], fractions[label], setted)
+    if scores["spam"] > scores["ham"]:
+        return "spam", scores
+    else:
+        return "ham", scores
 if __name__ == "__main__":
     train, test = load_dataset(0.2, 42)
     counts, email_counts = count_words(train)

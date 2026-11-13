@@ -1,6 +1,7 @@
 import math
-
-from fivefifty.classify import load_dataset, count_words
+from fivefifty.parse import subject_and_body
+from fivefifty.tokenizer import tokenize
+from fivefifty.classify import load_dataset, count_words, base_score, fast_score, make_bases, bernoulli_classify
 from fivefifty.train import make_fractions
 def lean(spam_count, ham_count, spam_mails, ham_mails):
     spam_fraction = (spam_count + 1) / (spam_mails + 2)
@@ -17,19 +18,7 @@ def bernoulli_score(prior, fractions, email_words):
             score += math.log(1-fraction)
     return score
 
-def base_score(prior, fractions):
-    score = math.log(prior)
-    for (word, fraction) in fractions.items():
-        score += math.log(1 - fraction)
-    return score
 
-def fast_score(base, fractions, words):
-    score = base
-    for word in words:
-        if word in fractions:
-            fraction = fractions[word]
-            score += math.log(fraction) - math.log(1 - fraction)
-    return score
 
 if __name__ == "__main__":
     for n in range(8):
@@ -64,8 +53,28 @@ if __name__ == "__main__":
     for word in ("click", "free", "patch"):
         print(
             f"{word}, spam: {fractions['spam'][word]:.1%}, ham: {fractions['ham'][word]:.1%}")
-    print(f"Spam: {len(counts['spam'])}, Ham: {len(counts['ham'])}")
-    print("="*40)
-    spam_only = counts["spam"].keys() - counts["ham"].keys()
-    spam_only_list = list(spam_only)
-    print(spam_only_list[:30])
+    train_email_total = sum(email_counts.values())
+    spam_prior = (email_counts['spam'] / train_email_total)
+    spam_base_result = base_score(spam_prior, fractions['spam'])
+    ham_prior = (email_counts['ham'] / train_email_total)
+    ham_base_result = base_score(ham_prior, fractions['ham'])
+    print('-'*40)
+    print(f'Spam base result: {spam_base_result}\nHam Base result: {ham_base_result}')
+    for text, label in test[:1]:
+        subjected = subject_and_body(text)
+        tokenized = tokenize(subjected)
+        setted = set(tokenized)
+        print(f"{label}, uniq words: {len(setted)}")
+        spam_slow = bernoulli_score(spam_prior, fractions['spam'], setted)
+        spam_fast = fast_score(spam_base_result, fractions['spam'], setted)
+        print('-'*40)
+        print(f'spam_slow: {spam_slow}, spam_fast: {spam_fast}')
+        ham_slow = bernoulli_score(ham_prior, fractions['ham'], setted)
+        ham_fast = fast_score(ham_base_result, fractions['ham'], setted)
+        print('-'*40)
+        print(f"ham_slow: {ham_slow}, ham_fast: {ham_fast}")
+        print("-"*40)
+        bases = make_bases(fractions,email_counts)
+        bern_res = bernoulli_classify(text, fractions, bases)
+        print("-"*40)
+        print(bern_res)
