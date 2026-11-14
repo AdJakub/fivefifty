@@ -44,4 +44,9 @@ if __name__ == "__main__":
     res_ber = evaluate(test, bernoulli_classify, fractions, bases)
     accuracy2, precision2, recall2 = metrics(res_ber)
     print(f"{res_ber}, {accuracy2:.1%}, {precision2:.1%}, {recall2:.1%}")
-
+    print("-"*40)
+    final_fractions = make_fractions(counts, email_counts, 112)
+    final_bases = make_bases(final_fractions, email_counts)
+    res_final = evaluate(test, bernoulli_classify, final_fractions, final_bases)
+    accuracy3, precision3, recall3 = metrics(res_final)
+    print(f"{res_final}, {accuracy3:.1%}, {precision3:.1%}, {recall3:.1%}")

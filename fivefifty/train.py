@@ -14,11 +14,14 @@ def count_words(emails):
     return counts, email_counts
 
 
-def make_fractions(counts, email_counts):
+def make_fractions(counts, email_counts, min_n=1):
     every_word = counts["spam"].keys() | counts["ham"].keys()
     fractions = {"spam": {}, "ham": {}}
     for label in ["spam", "ham"]:
         for word in every_word:
+            total = counts['ham'].get(word, 0) + counts['spam'].get(word, 0)
+            if total < min_n:
+                continue
             label_counts = counts[label]
             word_count = label_counts.get(word, 0)
             fraction = (word_count + 1) / (email_counts[label] + 2)

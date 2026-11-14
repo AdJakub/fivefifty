@@ -7,6 +7,8 @@ def lean(spam_count, ham_count, spam_mails, ham_mails):
     spam_fraction = (spam_count + 1) / (spam_mails + 2)
     ham_fraction = (ham_count + 1)  / (ham_mails + 2)
     return math.log(spam_fraction) - math.log(ham_fraction)
+from fivefifty.split import train_test_split
+from fivefifty.evaluate import evaluate, metrics
 
 
 def bernoulli_score(prior, fractions, email_words):
@@ -78,3 +80,26 @@ if __name__ == "__main__":
         bern_res = bernoulli_classify(text, fractions, bases)
         print("-"*40)
         print(bern_res)
+        only_one = 0
+        only_one_email_words = list()
+        for word in fractions['spam']:
+            total = counts['ham'].get(word, 0) + counts['spam'].get(word, 0)
+            if total == 1:
+                only_one_email_words.append(word)
+                only_one += 1
+        print(only_one)
+        print(only_one_email_words[:30])
+        fit, val = train_test_split(train, 0.2, 42,)
+        print(len(fit), len(val))
+        fractions2 = make_fractions(counts, email_counts, 2)
+        print(len(fractions2['spam']), len(fractions2['ham']))
+        fit_counts, fit_email_counts = count_words(fit)
+        print(fit_email_counts)
+        ###### TRYING SEVERAL N
+        print("-"*40)
+        for n in [60, 70, 80, 90, 95]:
+            fit_fractions = make_fractions(fit_counts, fit_email_counts, n)
+            fit_bases = make_bases(fit_fractions, fit_email_counts)
+            evaluation = evaluate(val, bernoulli_classify, fit_fractions, fit_bases)
+            accuracy, precision, recall = metrics(evaluation)
+            print(f"{n}, {evaluation}, precision: {precision:.1%}, recall: {recall:.1%}, vocab size: {len(fit_fractions['spam'])}")
