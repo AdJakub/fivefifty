@@ -1,5 +1,5 @@
-from fivefifty.classify import classify, load_dataset, bernoulli_classify, make_bases
-from fivefifty.train import count_words, make_fractions
+from fivefifty.classify import classify, load_dataset, bernoulli_classify, make_bases, multinomial_classify
+from fivefifty.train import count_words, make_fractions, count_occurrences, make_multi_fractions
 
 def evaluate(test_list, classifier, model_a, model_b):
     results = {"caught": 0, "missed": 0, "false positive": 0, "correct ham": 0}
@@ -50,3 +50,9 @@ if __name__ == "__main__":
     res_final = evaluate(test, bernoulli_classify, final_fractions, final_bases)
     accuracy3, precision3, recall3 = metrics(res_final)
     print(f"{res_final}, {accuracy3:.1%}, {precision3:.1%}, {recall3:.1%}")
+    print("-"*40)
+    multi_counts, multi_email_counts, multi_word_totals = count_occurrences(train)
+    multi_fractions = make_multi_fractions(multi_counts, multi_word_totals)
+    res_multi = evaluate(test, multinomial_classify, multi_fractions, multi_email_counts,)
+    accuracy4, precision4, recall4 = metrics(res_multi)
+    print(f"multinomial, {res_multi}, {accuracy4:.1%}, {precision4:.1%}, {recall4:.1%}")
