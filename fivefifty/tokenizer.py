@@ -24,12 +24,20 @@ def tokenize(text):
     text = strip_tags(text)
 
     cleaned = list()
+    kept = list()
     for char in text:
         if char.isalnum():
             cleaned.append(char)
         else:
             cleaned.append(" ")
-    return "".join(cleaned).split()
+
+    cleaned_pre_min_n =  "".join(cleaned).split()
+
+    for token in cleaned_pre_min_n:
+        if len(token) <= 22:
+            kept.append(token)
+
+    return kept
 
 if __name__ == "__main__":
     from fivefifty.loader import load_folder
@@ -46,6 +54,7 @@ if __name__ == "__main__":
     print(strip_style("no style here"))
     print (strip_style("one <style>a</style> two <style>b</style> three"))
     test1 = tokenize("<STYLE>p{font-size:47pt}</STYLE> Hello World")
+    print(tokenize("kptrtve1xpposcsgsu71sdd, counterrevolutionaries"))
     print (test1)
     print(final[:60])
 
