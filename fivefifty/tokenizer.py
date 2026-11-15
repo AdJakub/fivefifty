@@ -1,3 +1,10 @@
+def strip_style(text):
+    while "</style>" in text:
+        before, _, rest = text.partition("<style")
+        _,_,after = rest.partition("</style>")
+        text = before + " " + after
+    return text
+
 def strip_tags(text):
     kept_chars = list()
     inside = False
@@ -12,8 +19,10 @@ def strip_tags(text):
     return "".join(kept_chars)
 
 def tokenize(text):
-    text = strip_tags(text)
     text = text.lower()
+    text = strip_style(text)
+    text = strip_tags(text)
+
     cleaned = list()
     for char in text:
         if char.isalnum():
@@ -33,5 +42,10 @@ if __name__ == "__main__":
     print(strip_tags("no tags here"))
     print(strip_tags("<HTML><BODY>click here</BODY></HTML>"))
     print(strip_tags("if x < 5 then y > 2"))
+    print(strip_style("hello <style>p{font-size:47pt}</style> world"))
+    print(strip_style("no style here"))
+    print (strip_style("one <style>a</style> two <style>b</style> three"))
+    test1 = tokenize("<STYLE>p{font-size:47pt}</STYLE> Hello World")
+    print (test1)
     print(final[:60])
 
