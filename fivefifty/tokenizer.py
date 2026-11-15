@@ -1,5 +1,5 @@
 def strip_style(text):
-    while "</style>" in text:
+    while "<style" in text:
         before, _, rest = text.partition("<style")
         _,_,after = rest.partition("</style>")
         text = before + " " + after

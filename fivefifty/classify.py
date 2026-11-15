@@ -59,6 +59,23 @@ def bernoulli_classify(raw_text, fractions, bases):
         return "spam", scores
     else:
         return "ham", scores
+
+def multinomial_classify(raw_text, fractions, email_counts):
+    subjected = subject_and_body(raw_text)
+    tokenized = tokenize(subjected)
+    train_email_total = sum(email_counts.values())
+    scores = dict()
+    for label in ["spam", "ham"]:
+        score = math.log(email_counts[label] / train_email_total)
+        for word in tokenized:
+           if word in fractions[label]:
+               score += math.log(fractions[label][word])
+        scores[label] = score
+    if scores["spam"] > scores["ham"]:
+        return "spam", scores
+    else:
+        return "ham", scores
+
 if __name__ == "__main__":
     train, test = load_dataset(0.2, 42)
     counts, email_counts = count_words(train)

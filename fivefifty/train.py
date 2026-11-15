@@ -13,6 +13,31 @@ def count_words(emails):
             counts[label][word] = counts[label].get(word, 0) + 1
     return counts, email_counts
 
+def count_occurrences(emails):
+    counts = {"spam": {}, "ham": {}}
+    email_counts = {"spam": 0, "ham": 0}
+    word_totals = {"spam": 0, "ham": 0}
+    for text, label in emails:
+        email_counts[label] += 1
+        words = tokenize(subject_and_body(text))
+        for word in words:
+            word_totals[label] += 1
+            counts[label][word] = counts[label].get(word, 0) + 1
+    return counts, email_counts, word_totals
+
+def make_multi_fractions(counts, word_totals):
+    every_word = counts["spam"].keys() | counts["ham"].keys()
+    v = len(every_word)
+    fractions = {"spam": {}, "ham": {}}
+    for label in ["spam", "ham"]:
+        for word in every_word:
+            label_counts = counts[label]
+            word_count = label_counts.get(word, 0)
+            fraction = (word_count + 1) / (word_totals[label] + v)
+            fractions[label][word] = fraction
+
+    return fractions
+
 
 def make_fractions(counts, email_counts, min_n=1):
     every_word = counts["spam"].keys() | counts["ham"].keys()
