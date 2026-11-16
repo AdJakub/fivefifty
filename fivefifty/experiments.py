@@ -1,4 +1,6 @@
 import math
+
+from fivefifty.loader import load_folder
 from fivefifty.parse import subject_and_body
 from fivefifty.tokenizer import tokenize
 from fivefifty.classify import load_dataset, count_words, base_score, fast_score, make_bases, bernoulli_classify, multinomial_classify
@@ -11,6 +13,7 @@ from fivefifty.split import train_test_split
 from fivefifty.evaluate import evaluate, metrics
 
 
+
 def bernoulli_score(prior, fractions, email_words):
     score = math.log(prior)
     for (word, fraction) in fractions.items():
@@ -20,6 +23,12 @@ def bernoulli_score(prior, fractions, email_words):
             score += math.log(1-fraction)
     return score
 
+def count_base64(emails):
+    counter = 0
+    for text, label in emails:
+        if "content-transfer-encoding: base64" in text.lower():
+            counter += 1
+    return counter
 
 
 if __name__ == "__main__":
@@ -93,24 +102,36 @@ if __name__ == "__main__":
         # print(len(fit), len(val))
         # fractions2 = make_fractions(counts, email_counts, 2)
         # print(len(fractions2['spam']), len(fractions2['ham']))
-    fit_counts, fit_email_counts = count_words(fit)
-        # print(fit_email_counts)
-        ###### TRYING SEVERAL N
-    print("-"*40)
-    for n in [1, 2, 5, 10, 20, 50, 90]:
-        fit_fractions = make_fractions(fit_counts, fit_email_counts, n)
-        fit_bases = make_bases(fit_fractions, fit_email_counts)
-        evaluation = evaluate(val, bernoulli_classify, fit_fractions, fit_bases)
-        accuracy, precision, recall = metrics(evaluation)
-        print(f"{n}, {evaluation}, precision: {precision:.1%}, recall: {recall:.1%}, vocab size: {len(fit_fractions['spam'])}")
-    print("-"*40)
-    counts,_,word_totals = count_occurrences(fit)
-    print(word_totals)
-    print(counts['spam'].get('free', 0))
-    print("-"*40)
+    # fit_counts, fit_email_counts = count_words(fit)
+    #     # print(fit_email_counts)
+    #     ###### TRYING SEVERAL N
+    # print("-"*40)
+    # for n in [1, 2, 5, 10, 20, 50, 90]:
+    #     fit_fractions = make_fractions(fit_counts, fit_email_counts, n)
+    #     fit_bases = make_bases(fit_fractions, fit_email_counts)
+    #     evaluation = evaluate(val, bernoulli_classify, fit_fractions, fit_bases)
+    #     accuracy, precision, recall = metrics(evaluation)
+    #     print(f"{n}, {evaluation}, precision: {precision:.1%}, recall: {recall:.1%}, vocab size: {len(fit_fractions['spam'])}")
+    # print("-"*40)
+    # counts,_,word_totals = count_occurrences(fit)
+    # print(word_totals)
+    # print(counts['spam'].get('free', 0))
+    # print("-"*40)
     multi_counts, multi_email_counts, multi_word_totals = count_occurrences(fit)
     multi_fractions = make_multi_fractions(multi_counts, multi_word_totals)
-    multi_evaluation = evaluate(val, multinomial_classify, multi_fractions, multi_email_counts)
-    multi_accuracy, multi_precision, multi_recall = metrics(multi_evaluation)
-    print(
-        f"multinomial, {multi_evaluation}, precision: {multi_precision:.1%}, recall: {multi_recall:.1%}, vocab size: {len(multi_fractions)}")
+    # multi_evaluation = evaluate(val, multinomial_classify, multi_fractions, multi_email_counts)
+    # multi_accuracy, multi_precision, multi_recall = metrics(multi_evaluation)
+    # print(
+    #     f"multinomial, {multi_evaluation}, precision: {multi_precision:.1%}, recall: {multi_recall:.1%}, vocab size: {len(multi_fractions)}")
+    # spam = load_folder("./data/spam", "spam")
+    # ez_ham = load_folder("./data/easy_ham", "ham")
+    # hard_ham = load_folder("./data/hard_ham", "hard_ham")
+    # count_spam_result = count_base64(spam) / len(spam)
+    # count_ez_ham_result = count_base64(ez_ham) / len(ez_ham)
+    # count_hard_ham_result = count_base64(hard_ham) / len(hard_ham)
+    # print(f"Spam: {count_spam_result:.1%}\nez_ham: {count_ez_ham_result:.1%}\nHard_ham: {count_hard_ham_result:.1%}\n")
+    for text, label in val:
+        prediction, _ = multinomial_classify(text, multi_fractions, multi_email_counts)
+        if label == "spam" and prediction == "ham":
+            print(f"Base64: {'content-transfer-encoding: base64' in text.lower()}")
+            print(text[:200])
