@@ -1,5 +1,5 @@
 import math
-
+import email
 from fivefifty.loader import load_folder
 from fivefifty.parse import subject_and_body
 from fivefifty.tokenizer import tokenize
@@ -119,10 +119,10 @@ if __name__ == "__main__":
     # print("-"*40)
     multi_counts, multi_email_counts, multi_word_totals = count_occurrences(fit)
     multi_fractions = make_multi_fractions(multi_counts, multi_word_totals)
-    # multi_evaluation = evaluate(val, multinomial_classify, multi_fractions, multi_email_counts)
-    # multi_accuracy, multi_precision, multi_recall = metrics(multi_evaluation)
-    # print(
-    #     f"multinomial, {multi_evaluation}, precision: {multi_precision:.1%}, recall: {multi_recall:.1%}, vocab size: {len(multi_fractions)}")
+    multi_evaluation = evaluate(val, multinomial_classify, multi_fractions, multi_email_counts)
+    multi_accuracy, multi_precision, multi_recall = metrics(multi_evaluation)
+    print(
+        f"multinomial, {multi_evaluation}, precision: {multi_precision:.1%}, recall: {multi_recall:.1%}, vocab size: {len(multi_fractions)}")
     # spam = load_folder("./data/spam", "spam")
     # ez_ham = load_folder("./data/easy_ham", "ham")
     # hard_ham = load_folder("./data/hard_ham", "hard_ham")
@@ -130,8 +130,33 @@ if __name__ == "__main__":
     # count_ez_ham_result = count_base64(ez_ham) / len(ez_ham)
     # count_hard_ham_result = count_base64(hard_ham) / len(hard_ham)
     # print(f"Spam: {count_spam_result:.1%}\nez_ham: {count_ez_ham_result:.1%}\nHard_ham: {count_hard_ham_result:.1%}\n")
-    for text, label in val:
-        prediction, _ = multinomial_classify(text, multi_fractions, multi_email_counts)
-        if label == "spam" and prediction == "ham":
-            print(f"Base64: {'content-transfer-encoding: base64' in text.lower()}")
-            print(text[:200])
+    # for text, label in val:
+    #     prediction, _ = multinomial_classify(text, multi_fractions, multi_email_counts)
+    #     if label == "spam" and prediction == "ham":
+    #         print(f"Base64: {'content-transfer-encoding: base64' in text.lower()}")
+    #         print(text[:200])
+    # stored = ""
+    # for text, label in val:
+    #     if label == "spam" and 'content-transfer-encoding: base64' in text.lower():
+    #         stored = text
+    #         break
+    # msg = email.message_from_string(stored)
+    # print(msg.is_multipart(), msg.get_content_type())
+    # for part in msg.walk():
+    #     print(part.get_content_type(), part.get("Content-Transfer-Encoding"))
+    #     payload = part.get_payload(decode=True)
+    #     charset = part.get_content_charset()
+    #     if charset is None:
+    #         decoded = payload.decode('latin-1', errors="replace")
+    #     else:
+    #          decoded = payload.decode(charset, errors="replace")
+    #     print(decoded)
+    #
+    # print(subject_and_body_mime(stored)[:300])
+    # plain = ""
+    # for text, label in val:
+    #     if label == "spam" and 'contet-transfer-encoding: base64' not in text.lower():
+    #         plain = text
+    #         break
+    # print(subject_and_body(plain)[:300])
+    # print(subject_and_body_mime(plain)[:300])
