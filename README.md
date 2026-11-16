@@ -24,7 +24,12 @@ fivefifty check some_email.eml
 ```
 ```
 SPAM
-[('payment', 12.719685971180983), ('le', 15.667823491997437), ('de', 19.956307904829593), ('les', 20.702822876133904), ('your', 26.43092106142582)]
+==================== REASONING ====================
+your      :     +26.4
+les       :     +20.7
+de        :     +20.0
+le        :     +15.7
+payment   :     +12.7
 ```
 
 train your own model on your own mail:
