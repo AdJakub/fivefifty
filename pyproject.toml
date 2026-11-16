@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "fivefifty"
+version = '0.1.0'
+description = 'A spam filter you can read, that tells you why, and that learns from your own inbox'
+readme = 'README.md'
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "AdJak"}]
+dependencies = []
+[project.scripts]
+fivefifty = "fivefifty.cli:main"
+[tool.setuptools]
+packages = ["fivefifty"]
+[tool.setuptools.package-data]
+fivefifty = ["model.json"]
