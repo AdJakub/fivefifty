@@ -4,9 +4,9 @@ from fivefifty.loader import load_folder
 from fivefifty.train import count_occurrences, make_multi_fractions
 
 
-def train_model():
-    spam = load_folder("./data/spam", "spam")
-    ez_ham = load_folder("./data/easy_ham", "ham")
+def train_model(spam_dir="./data/spam", ham_dir="./data/easy_ham"):
+    spam = load_folder(spam_dir, "spam")
+    ez_ham = load_folder(ham_dir, "ham")
     together = list(spam + ez_ham)
     counts, email_counts, word_totals = count_occurrences(together)
     multi_fractions = make_multi_fractions(counts, word_totals)
