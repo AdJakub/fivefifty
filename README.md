@@ -36,6 +36,23 @@ The built in model is based on mostly english 2002 spam. Training your own shows
 
 everything runs locally. no email ever leaves your machine.
 
+### getting your mail into folders
+the easiest way right now is thunderbird (free, works with gmail, outlook and most other providers):
+
+1. install [thunderbird](https://www.thunderbird.net) and add your email account
+2. open your **spam** folder (for gmail it shows up as `[Gmail]` → `Spam`), select all with `ctrl+a`, right-click → **Save As…**, and pick an empty folder like `my_spam/`. every email gets saved as its own `.eml` file.
+3. do the same for your **inbox** into `my_ham/`
+4. train:
+   ```
+   fivefifty train my_spam/ my_ham/ --out my_model.json
+   ```
+
+tips:
+- gmail deletes spam after 30 days, so you'll usually have a lot less spam than ham. that's fine, the filter accounts for it.
+- only put emails you're sure about in each folder. a few mislabeled ones teach it the wrong words.
+- your emails and your model stay on your computer. don't share `my_model.json`: it's built from your private mail.
+
+
 ## results
 test set: 100 spam + 500 ham the filter never saw while training.
 
