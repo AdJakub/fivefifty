@@ -76,6 +76,16 @@ def multinomial_classify(raw_text, fractions, email_counts):
     else:
         return "ham", scores
 
+def explain(raw_text, fractions):
+    subjected = subject_and_body(raw_text)
+    tokenized = tokenize(subjected)
+    pushes = dict()
+    for token in tokenized:
+        if token not in fractions["spam"]:
+            continue
+        push = math.log(fractions["spam"][token]) - math.log(fractions["ham"][token])
+        pushes[token] = pushes.get(token, 0) + push
+    return pushes
 if __name__ == "__main__":
     train, test = load_dataset(0.2, 42)
     counts, email_counts = count_words(train)

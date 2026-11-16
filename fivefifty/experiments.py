@@ -1,9 +1,11 @@
 import math
 import email
 from fivefifty.loader import load_folder
+from fivefifty.model import load_model
 from fivefifty.parse import subject_and_body
 from fivefifty.tokenizer import tokenize
-from fivefifty.classify import load_dataset, count_words, base_score, fast_score, make_bases, bernoulli_classify, multinomial_classify
+from fivefifty.classify import load_dataset, count_words, base_score, fast_score, make_bases, bernoulli_classify, \
+    multinomial_classify, explain
 from fivefifty.train import make_fractions, count_occurrences, make_multi_fractions
 def lean(spam_count, ham_count, spam_mails, ham_mails):
     spam_fraction = (spam_count + 1) / (spam_mails + 2)
@@ -57,7 +59,7 @@ if __name__ == "__main__":
     # fast_ham = fast_score(ham_base, ham_fractions, email_words)
     # print(f"X: {fast_spam}\nY: {fast_ham}")
     # print("="*40)
-    train, test = load_dataset(0.2, 42)
+    # train, test = load_dataset(0.2, 42)
     # counts, email_counts = count_words(train)
     # fractions = make_fractions(counts, email_counts)
     # print (f"Spam: {len(fractions['spam'])}\nHam: {len(fractions['ham'])}.")
@@ -98,7 +100,7 @@ if __name__ == "__main__":
     #             only_one += 1
     #     print(only_one)
     #     print(only_one_email_words[:30])
-    fit, val = train_test_split(train, 0.2, 42,)
+    # fit, val = train_test_split(train, 0.2, 42,)
         # print(len(fit), len(val))
         # fractions2 = make_fractions(counts, email_counts, 2)
         # print(len(fractions2['spam']), len(fractions2['ham']))
@@ -117,12 +119,12 @@ if __name__ == "__main__":
     # print(word_totals)
     # print(counts['spam'].get('free', 0))
     # print("-"*40)
-    multi_counts, multi_email_counts, multi_word_totals = count_occurrences(fit)
-    multi_fractions = make_multi_fractions(multi_counts, multi_word_totals)
-    multi_evaluation = evaluate(val, multinomial_classify, multi_fractions, multi_email_counts)
-    multi_accuracy, multi_precision, multi_recall = metrics(multi_evaluation)
-    print(
-        f"multinomial, {multi_evaluation}, precision: {multi_precision:.1%}, recall: {multi_recall:.1%}, vocab size: {len(multi_fractions)}")
+    # multi_counts, multi_email_counts, multi_word_totals = count_occurrences(fit)
+    # multi_fractions = make_multi_fractions(multi_counts, multi_word_totals)
+    # multi_evaluation = evaluate(val, multinomial_classify, multi_fractions, multi_email_counts)
+    # multi_accuracy, multi_precision, multi_recall = metrics(multi_evaluation)
+    # print(
+    #     f"multinomial, {multi_evaluation}, precision: {multi_precision:.1%}, recall: {multi_recall:.1%}, vocab size: {len(multi_fractions)}")
     # spam = load_folder("./data/spam", "spam")
     # ez_ham = load_folder("./data/easy_ham", "ham")
     # hard_ham = load_folder("./data/hard_ham", "hard_ham")
@@ -160,3 +162,9 @@ if __name__ == "__main__":
     #         break
     # print(subject_and_body(plain)[:300])
     # print(subject_and_body_mime(plain)[:300])
+    model = load_model("fivefifty/model.json")
+    with open("data/real/testspam.eml", encoding="utf-8", errors="replace") as f:
+        test = f.read()
+    pushes = explain(test, model['fractions'])
+    ranked = sorted(pushes.items(), key=lambda pair: pair[1])
+    print(f"Spammiest: {ranked[-5:]}\nHammiest: {ranked[:5]}")
